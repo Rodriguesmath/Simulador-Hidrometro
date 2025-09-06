@@ -1,4 +1,4 @@
-package main.java.br.com.simulador;
+package main.java.br.com.simulador.config;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -6,7 +6,7 @@ import java.io.IOException;
 public class SimulatorConfig {
 
     // TODO: Adicionar atributos conforme ajustes para ficar de acordo com a especificação
-    private double bitola;             // em mm, por exemplo
+    private Bitola bitola;             // Enum Bitola
     private int tempoExecucao;         // em segundos
     private int intervaloAtualizacao;  // em segundos
 
@@ -30,7 +30,7 @@ public class SimulatorConfig {
                 // TODO: Adicionar chaves conforme ajustes para ficar de acordo com a especificação
                 switch (chave) {
                     case "bitola":
-                        this.bitola = Double.parseDouble(valor);
+                        this.bitola = Bitola.fromString(valor);
                         break;
                     case "tempoExecucao":
                         this.tempoExecucao = Integer.parseInt(valor);
@@ -48,7 +48,8 @@ public class SimulatorConfig {
     }
 
     // TODO: Adicionar Getters conforme ajustes para ficar de acordo com a especificação
-    public double getBitola() {
+
+    public Bitola getBitola() {
         return bitola;
     }
 

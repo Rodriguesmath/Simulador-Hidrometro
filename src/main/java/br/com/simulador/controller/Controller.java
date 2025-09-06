@@ -1,3 +1,4 @@
+package main.java.br.com.simulador.controller;
 import main.java.br.com.simulador.config.SimulatorConfig;
 import main.java.br.com.simulador.hidrometro.HidrometroSimulator;
 
@@ -11,6 +12,11 @@ public class Controller {
     }
 
     public void run() {
-        simulator = new HidrometroSimulator(config.getBitola(), config.getIntervalo(), config.getQuantidade());
+        // Ajuste os métodos conforme os nomes corretos dos getters em SimulatorConfig
+        simulator = new HidrometroSimulator(
+            config.getBitola(),
+            config.getIntervaloAtualizacao(),
+            config.getTempoExecucao()
+        );
     }
 }
