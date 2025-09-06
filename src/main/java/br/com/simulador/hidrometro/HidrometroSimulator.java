@@ -33,10 +33,8 @@ public class HidrometroSimulator {
         }
         return volumeTotal;
     }
-    public void exibirMedida() {
-        System.out.println("Volume acumulado: " + medidor.getM3() + " m³");
-        System.out.println("Volume acumulado: " + medidor.getMm3() + " mm³");
-        System.out.println("Pressão: " + medidor.getPressao() + " Pa");
+    public void exibirMedicao() {
+        display.exibirImagem(medidor.getM3(), medidor.getMm3(), medidor.getPressao());
     }
 
 }
