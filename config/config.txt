@@ -1,4 +1,4 @@
 # Configuração do simulador de hidrômetro
-bitola=20.0 
-tempoExecucao=60
-intervaloAtualizacao=5
+bitola=1/2
+intervaloAtualizacao=20
+tempoExecucao=86400
