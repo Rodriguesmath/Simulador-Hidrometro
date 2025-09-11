@@ -1,4 +1,58 @@
-# Configuração do simulador de hidrômetro
-bitola=1/2
-intervaloAtualizacao=20
-tempoExecucao=86400
+===============================================
+Arquivo de Configuração do Simulador de Hidrômetro
+===============================================
+--- Configurações Gerais da Simulação ---
+Bitola do hidrômetro em polegadas.
+Opções válidas: 1/2, 3/4, 1, 1 1/2, 2, 3, 4
+bitola = 3/4
+
+Duração total da simulação em segundos.
+Ex: 86400 para simular 24 horas. Use -1 para execução infinita.
+tempoExecucao = 86400
+
+--- Controle de Velocidade da Simulação ---
+Intervalo de atualização visual (em milissegundos).
+Controla a pausa no mundo real entre cada frame. 1000 equivale a 1 segundo.
+intervaloAtualizacao = 5000
+
+Escala de tempo (em segundos simulados por atualização).
+Controla quantos segundos o tempo da simulação avança a cada atualização visual.
+Ex: 1 para tempo real, 3600 para simular 1 hora a cada atualização.
+escalaDeTempo = 3600
+
+--- Parâmetros Físicos da Água ---
+Pressão mínima da água na rede (em bar)
+pressaoMinima = 3.0
+
+Pressão máxima da água na rede (em bar)
+pressaoMaxima = 6.0
+
+=================================================================
+Perfis de Consumo (Padrão Strategy)
+=================================================================
+Defina os horários (0-23) e as faixas de velocidade do fluxo (m/s)
+para cada período do dia. Os períodos não podem se sobrepor.
+=================================================================
+--- Perfil Madrugada (Consumo Baixo) ---
+madrugada_inicio = 0
+madrugada_fim = 5
+madrugada_vel_min = 0.01
+madrugada_vel_max = 0.2
+
+--- Perfil Manhã (Pico de Consumo) ---
+manha_inicio = 6
+manha_fim = 9
+manha_vel_min = 1.5
+manha_vel_max = 2.8
+
+--- Perfil Tarde (Consumo Moderado) ---
+tarde_inicio = 10
+tarde_fim = 17
+tarde_vel_min = 0.5
+tarde_vel_max = 1.5
+
+--- Perfil Noite (Segundo Pico) ---
+noite_inicio = 18
+noite_fim = 23
+noite_vel_min = 1.2
+noite_vel_max = 2.5

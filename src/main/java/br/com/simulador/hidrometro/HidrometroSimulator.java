@@ -1,78 +1,119 @@
 package main.java.br.com.simulador.hidrometro;
-import main.java.br.com.simulador.config.Bitola;
 
+import main.java.br.com.simulador.config.SimulatorConfig;
+import main.java.br.com.simulador.observer.Observador;
+import main.java.br.com.simulador.strategy.PerfilDeConsumoStrategy;
+import main.java.br.com.simulador.strategy.PerfilMadrugada;
+import main.java.br.com.simulador.strategy.PerfilManha;
+import main.java.br.com.simulador.strategy.PerfilNoite;
+import main.java.br.com.simulador.strategy.PerfilTarde;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Orquestra a simulação do hidrômetro.
+ * Atua como o "Subject" no padrão Observer, notificando os observadores.
+ */
 public class HidrometroSimulator {
 
-    private Medidor medidor;
-    private Saida saidaDados;
-    private Display display;
-    private Entrada entradaDados;
-    private int intervalo;
-    private int quantidade;
-    private int medicaoAtual = 0;
-    private float tempoTotal = 0;
+    private final Medidor medidor;
+    private final SimulatorConfig config;
+    private final List<Observador> observadores = new ArrayList<>();
+    private final List<PerfilDeConsumoStrategy> estrategias = new ArrayList<>();
+    private int tempoTotalSimulado = 0;
 
-    public HidrometroSimulator(Bitola bitola, int intervalo, int quantidade) {
-        this.saidaDados = new Saida();
-        this.display = new Display();
-        this.intervalo = intervalo;
-        this.quantidade = quantidade;
+    public HidrometroSimulator(SimulatorConfig config) {
+        this.config = config;
 
-        // Medidor é criado uma única vez com o estado inicial
-        Entrada entradaInicial = new Entrada(bitola, 0.0f);
+        // Inicializa as estratégias de consumo com suas configurações
+        inicializarEstrategias();
+
+        // Cria uma "Entrada" inicial para definir o estado do medidor em t=0
+        Entrada entradaInicial = new Entrada(0, config, this.estrategias);
         this.medidor = new Medidor(entradaInicial);
     }
 
-    // Avança uma medição e atualiza o medidor
-    public void medir() {
-        if (medicaoAtual == 0) {
-            saidaDados.logInicioSimulacao(quantidade, intervalo);
+    /**
+     * Lê a configuração e instancia cada estratégia com seus respectivos parâmetros.
+     */
+    private void inicializarEstrategias() {
+        // Madrugada
+        float madMinVel = Float.parseFloat(config.getPerfilDeConsumoProperty("madrugada_vel_min"));
+        float madMaxVel = Float.parseFloat(config.getPerfilDeConsumoProperty("madrugada_vel_max"));
+        int madInicio = Integer.parseInt(config.getPerfilDeConsumoProperty("madrugada_inicio"));
+        int madFim = Integer.parseInt(config.getPerfilDeConsumoProperty("madrugada_fim"));
+        estrategias.add(new PerfilMadrugada(madMinVel, madMaxVel, madInicio, madFim));
+
+        // Manhã
+        float manhaMinVel = Float.parseFloat(config.getPerfilDeConsumoProperty("manha_vel_min"));
+        float manhaMaxVel = Float.parseFloat(config.getPerfilDeConsumoProperty("manha_vel_max"));
+        int manhaInicio = Integer.parseInt(config.getPerfilDeConsumoProperty("manha_inicio"));
+        int manhaFim = Integer.parseInt(config.getPerfilDeConsumoProperty("manha_fim"));
+        estrategias.add(new PerfilManha(manhaMinVel, manhaMaxVel, manhaInicio, manhaFim));
+
+        // Tarde
+        float tardeMinVel = Float.parseFloat(config.getPerfilDeConsumoProperty("tarde_vel_min"));
+        float tardeMaxVel = Float.parseFloat(config.getPerfilDeConsumoProperty("tarde_vel_max"));
+        int tardeInicio = Integer.parseInt(config.getPerfilDeConsumoProperty("tarde_inicio"));
+        int tardeFim = Integer.parseInt(config.getPerfilDeConsumoProperty("tarde_fim"));
+        estrategias.add(new PerfilTarde(tardeMinVel, tardeMaxVel, tardeInicio, tardeFim));
+
+        // Noite
+        float noiteMinVel = Float.parseFloat(config.getPerfilDeConsumoProperty("noite_vel_min"));
+        float noiteMaxVel = Float.parseFloat(config.getPerfilDeConsumoProperty("noite_vel_max"));
+        int noiteInicio = Integer.parseInt(config.getPerfilDeConsumoProperty("noite_inicio"));
+        int noiteFim = Integer.parseInt(config.getPerfilDeConsumoProperty("noite_fim"));
+        estrategias.add(new PerfilNoite(noiteMinVel, noiteMaxVel, noiteInicio, noiteFim));
+    }
+
+
+    public void adicionarObservador(Observador obs) {
+        this.observadores.add(obs);
+    }
+
+    /**
+     * Notifica os observadores sobre o estado atual.
+     * Deve ser chamado uma vez no início para mostrar o estado t=0.
+     */
+    public void notificarObservadores() {
+        for (Observador obs : observadores) {
+            obs.atualizar(medidor, tempoTotalSimulado);
         }
-        if (medicaoAtual < quantidade) {
-            // --- AJUSTE APLICADO: Simula uma hora completa a cada chamada ---
-            int segundosPorHora = 3600;
+    }
 
-            // Loop interno para simular uma hora em pequenos intervalos, tornando o consumo realista
-            for (int t = 0; t < segundosPorHora; t += intervalo) {
-                tempoTotal += intervalo; // O tempo total da simulação avança corretamente
-
-                // Cria uma nova instância de Entrada com dados para o momento atual
-                Entrada novaEntrada = new Entrada(medidor.getBitola(), tempoTotal);
-
-                // Atualiza o medidor com o consumo deste pequeno intervalo
-                medidor.atualizarMedicao(novaEntrada, intervalo);
-            }
-
-            // O log é feito no final de cada hora simulada, com o valor acumulado
-            saidaDados.logMedicao(getM3(), getPressao(), (int)tempoTotal, medidor.getBitola(), intervalo, quantidade);
-
-            medicaoAtual++;
-            if (medicaoAtual == quantidade) {
-                saidaDados.logFimSimulacao(getM3());
-            }
+    /**
+     * Notifica todos os observadores que a simulação terminou.
+     */
+    public void notificarFimSimulacao() {
+        for (Observador obs : observadores) {
+            obs.simulacaoFinalizada(medidor);
         }
     }
 
+    /**
+     * Avança a simulação em um passo de tempo.
+     */
+    public void avancarSimulacao() {
+        int tempoParaAvancar = config.getEscalaDeTempo();
+        tempoTotalSimulado += tempoParaAvancar;
 
-    public float getM3() {
-        return medidor.getM3();
-    }
+        Entrada novaEntrada = new Entrada(tempoTotalSimulado, config, estrategias);
+        medidor.atualizarMedicao(novaEntrada, tempoParaAvancar);
 
-    public float getMm3() {
-        return medidor.getMm3();
-    }
-
-    public float getPressao() {
-        return medidor.getPressao();
-    }
-
-    public void exibirMedicao() {
-        // A chamada agora passa apenas o valor total em m³, que é o correto.
-        display.exibirImagem(getM3());
+        notificarObservadores();
     }
 
     public boolean isFinalizado() {
-        return medicaoAtual >= quantidade;
+        int tempoExecucaoConfigurado = config.getTempoExecucao();
+        if (tempoExecucaoConfigurado == -1) {
+            return false;
+        }
+        return tempoTotalSimulado >= tempoExecucaoConfigurado;
+    }
+
+    public Medidor getMedidor() {
+        return medidor;
     }
 }
 

@@ -1,46 +1,62 @@
 package main.java.br.com.simulador.hidrometro;
+
 import main.java.br.com.simulador.config.Bitola;
-import main.java.br.com.simulador.config.PerfilDeConsumo;
+import main.java.br.com.simulador.config.SimulatorConfig;
+import main.java.br.com.simulador.strategy.PerfilDeConsumoStrategy;
+
+import java.util.List;
 import java.util.Random;
 
+/**
+ * Representa as condições de entrada da água no hidrômetro em um dado momento.
+ * Utiliza o padrão Strategy para determinar a velocidade do fluxo.
+ */
 public class Entrada {
     private final Bitola bitola;
-    private final float pressao;    // em bar
-    private final float velocidade; // em m/s
+    private final float pressao;
+    private final float velocidade;
+    private final Random random = new Random();
 
-    private static final float MIN_PRESSAO_BAR = 3.0f;
-    private static final float MAX_PRESSAO_BAR = 6.0f;
-
-    /**
-     * Cria uma instância de Entrada com valores de pressão e velocidade baseados
-     * em um perfil de consumo diário realista.
-     * @param bitola A bitola do hidrômetro.
-     * @param tempoAtual O tempo total da simulação em segundos.
-     */
-    public Entrada(Bitola bitola, float tempoAtual) {
-        this.bitola = bitola;
-        Random random = new Random((long) (tempoAtual * 1000));
+    public Entrada(int tempoAtualSegundos, SimulatorConfig config, List<PerfilDeConsumoStrategy> estrategias) {
+        this.bitola = config.getBitola();
 
         // Gera pressão dentro de uma faixa normal
-        this.pressao = MIN_PRESSAO_BAR + random.nextFloat() * (MAX_PRESSAO_BAR - MIN_PRESSAO_BAR);
+        float minPressao = config.getPressaoMinima();
+        float maxPressao = config.getPressaoMaxima();
+        this.pressao = minPressao + random.nextFloat() * (maxPressao - minPressao);
 
-        // Determina o perfil de consumo com base na hora do dia
-        int horaDoDia = (int) (tempoAtual / 3600) % 24;
-        PerfilDeConsumo perfil = PerfilDeConsumo.getPerfil(horaDoDia);
+        // Determina a velocidade da água usando a estratégia de consumo apropriada
+        this.velocidade = getVelocidade(tempoAtualSegundos, estrategias);
+    }
 
-        // Gera a velocidade da água com base no perfil de consumo
-        float minVelocidade = perfil.getMinVelocidade();
-        float maxVelocidade = perfil.getMaxVelocidade();
-        this.velocidade = minVelocidade + random.nextFloat() * (maxVelocidade - minVelocidade);
+    /**
+     * Encontra a estratégia de consumo ativa para a hora atual e calcula a velocidade do fluxo.
+     *
+     * @param tempoAtualSegundos O tempo total da simulação em segundos.
+     * @param estrategias        A lista de estratégias de consumo disponíveis.
+     * @return A velocidade do fluxo de água em m/s.
+     */
+    private float getVelocidade(int tempoAtualSegundos, List<PerfilDeConsumoStrategy> estrategias) {
+        int horaDoDia = (tempoAtualSegundos / 3600) % 24;
+
+        for (PerfilDeConsumoStrategy estrategia : estrategias) {
+            if (estrategia.isAtivo(horaDoDia)) {
+                return estrategia.getVelocidade(random);
+            }
+        }
+        // Retorna um valor padrão (próximo de zero) se nenhum perfil for encontrado
+        return 0.01f;
     }
 
     /**
      * Calcula o fluxo de água em metros cúbicos por segundo (m³/s).
+     *
      * @return O fluxo em m³/s.
      */
     public float calcularFluxo() {
         float raio = bitola.getDiametro() / 2.0f;
         float area = (float) (Math.PI * raio * raio);
+        // CORREÇÃO: A fórmula correta para o fluxo é area * velocidade.
         return area * this.velocidade;
     }
 

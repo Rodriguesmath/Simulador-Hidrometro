@@ -1,29 +1,62 @@
 package main.java.br.com.simulador.hidrometro;
 
 import main.java.br.com.simulador.config.Bitola;
+import main.java.br.com.simulador.config.SimulatorConfig;
+import main.java.br.com.simulador.observer.Observador;
 
-public class Saida {
+/**
+ * Responsável por gerar os logs de texto no console.
+ * Implementa a interface Observador para ser notificado sobre atualizações.
+ */
+public class Saida implements Observador {
 
-    public void logMedicao(float volume, float pressao, int tempo, Bitola bitola, int intervaloAtualizacao, int tempoExecucao) {
-        System.out.println("=== LOG DE MEDIÇÃO ===");
-        System.out.println("Tempo: " + tempo + "s");
-        System.out.println("Volume: " + (volume * 1000) + " litros");
-        System.out.println("Pressão: " + pressao + " bar");
+    private final SimulatorConfig config;
+
+    public Saida(SimulatorConfig config) {
+        this.config = config;
+    }
+
+    @Override
+    public void atualizar(Medidor medidor, int tempoSimulado) {
+        if (tempoSimulado == 0) {
+            logInicioSimulacao(medidor);
+        } else {
+            logMedicao(medidor, tempoSimulado);
+        }
+    }
+
+    @Override
+    public void simulacaoFinalizada(Medidor estadoFinal) {
+        System.out.println("=============================================");
+        System.out.println("           SIMULAÇÃO FINALIZADA");
+        System.out.println("=============================================");
+        System.out.printf("Volume Total Medido: %.4f m³%n", estadoFinal.getM3());
+        System.out.printf("Pressão Final: %.2f bar%n", estadoFinal.getPressao());
+        System.out.println("=============================================");
+    }
+
+    public void logInicioSimulacao(Medidor medidor) {
+        System.out.println("=============================================");
+        System.out.println("           INICIANDO SIMULAÇÃO");
+        System.out.println("=============================================");
+        Bitola bitola = medidor.getBitola();
         System.out.println("Bitola: " + (bitola.getDiametro() * 1000) + "mm (" + bitola.getPolegada() + "\")");
-        System.out.println("Intervalo de Atualização: " + intervaloAtualizacao + "s");
-        System.out.println("Tempo de Execução: " + tempoExecucao + "s");
-        System.out.println("========================");
+
+        int tempoExec = config.getTempoExecucao();
+        String tempoTotalStr = tempoExec == -1 ? "Infinita" : (tempoExec / 3600) + " horas";
+
+        System.out.println("Tempo Total Simulado: " + tempoTotalStr);
+        System.out.println("Intervalo de Atualização Visual: " + config.getIntervaloAtualizacao() + "ms");
+        System.out.println("Escala de Tempo: 1 frame = " + config.getEscalaDeTempo() + "s");
+        System.out.println("=============================================");
     }
 
-
-
-    public void logInicioSimulacao(int quantidade, int intervalo) {
-        System.out.println("Iniciando simulação:");
-        System.out.println("Quantidade de medições: " + quantidade);
-        System.out.println("Intervalo: " + intervalo + "s");
-    }
-
-    public void logFimSimulacao(float volumeTotal) {
-        System.out.println("Simulação concluída. Volume total: " + volumeTotal + " m³");
+    public void logMedicao(Medidor medidor, int tempoSimulado) {
+        System.out.println("-------------------------");
+        int horas = tempoSimulado / 3600;
+        System.out.printf("Tempo Simulado: %ds (%dh)%n", tempoSimulado, horas);
+        System.out.printf("Volume: %.4f m³ (%.2f litros)%n", medidor.getM3(), medidor.getM3() * 1000);
+        System.out.printf("Pressão: %.2f bar%n", medidor.getPressao());
     }
 }
+

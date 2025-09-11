@@ -3,14 +3,21 @@ package main.java.br.com.simulador.config;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * Carrega e armazena todas as configurações da simulação a partir de um arquivo.
+ */
 public class SimulatorConfig {
 
-    // TODO: Adicionar atributos conforme ajustes para ficar de acordo com a
-    // especificação
-    private Bitola bitola; // Enum Bitola
-    private int tempoExecucao; // em segundos
-    private int intervaloAtualizacao; // em segundos
+    private Bitola bitola;
+    private int tempoExecucao;
+    private int intervaloAtualizacao;
+    private int escalaDeTempo; // Novo parâmetro
+    private float pressaoMinima;
+    private float pressaoMaxima;
+    private final Map<String, String> perfilDeConsumoProps = new HashMap<>();
 
     public SimulatorConfig(String caminhoArquivo) {
         carregarArquivo(caminhoArquivo);
@@ -31,8 +38,11 @@ public class SimulatorConfig {
                 String chave = partes[0].trim();
                 String valor = partes[1].trim();
 
-                // TODO: Adicionar chaves conforme ajustes para ficar de acordo com a
-                // especificação
+                if (chave.startsWith("madrugada_") || chave.startsWith("manha_") || chave.startsWith("tarde_") || chave.startsWith("noite_")) {
+                    perfilDeConsumoProps.put(chave, valor);
+                    continue;
+                }
+
                 switch (chave) {
                     case "bitola":
                         this.bitola = Bitola.fromString(valor);
@@ -43,8 +53,17 @@ public class SimulatorConfig {
                     case "intervaloAtualizacao":
                         this.intervaloAtualizacao = Integer.parseInt(valor);
                         break;
+                    case "escalaDeTempo":
+                        this.escalaDeTempo = Integer.parseInt(valor);
+                        break;
+                    case "pressaoMinima":
+                        this.pressaoMinima = Float.parseFloat(valor);
+                        break;
+                    case "pressaoMaxima":
+                        this.pressaoMaxima = Float.parseFloat(valor);
+                        break;
                     default:
-                        System.out.println("Chave desconhecida ignorada: " + chave);
+                        System.out.println("Chave desconhecida ignorada: " + chave );
                 }
             }
         } catch (IOException e) {
@@ -52,9 +71,7 @@ public class SimulatorConfig {
         }
     }
 
-    // TODO: Adicionar Getters conforme ajustes para ficar de acordo com a
-    // especificação
-
+    // Getters para as configurações
     public Bitola getBitola() {
         return bitola;
     }
@@ -66,4 +83,21 @@ public class SimulatorConfig {
     public int getIntervaloAtualizacao() {
         return intervaloAtualizacao;
     }
+
+    public int getEscalaDeTempo() {
+        return escalaDeTempo;
+    }
+
+    public float getPressaoMinima() {
+        return pressaoMinima;
+    }
+
+    public float getPressaoMaxima() {
+        return pressaoMaxima;
+    }
+
+    public String getPerfilDeConsumoProperty(String key) {
+        return perfilDeConsumoProps.get(key);
+    }
 }
+
