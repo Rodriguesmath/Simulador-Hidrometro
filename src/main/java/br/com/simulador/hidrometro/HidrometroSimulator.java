@@ -19,18 +19,20 @@ public class HidrometroSimulator {
 
     private final Medidor medidor;
     private final SimulatorConfig config;
+    private final ControleVazao controleVazao;
     private final List<Observador> observadores = new ArrayList<>();
     private final List<PerfilDeConsumoStrategy> estrategias = new ArrayList<>();
     private int tempoTotalSimulado = 0;
 
-    public HidrometroSimulator(SimulatorConfig config) {
+    public HidrometroSimulator(SimulatorConfig config, ControleVazao controleVazao) {
         this.config = config;
+        this.controleVazao = controleVazao;
 
         // Inicializa as estratégias de consumo com suas configurações
         inicializarEstrategias();
 
         // Cria uma "Entrada" inicial para definir o estado do medidor em t=0
-        Entrada entradaInicial = new Entrada(0, config, this.estrategias);
+        Entrada entradaInicial = new Entrada(0, config, this.estrategias, this.controleVazao);
         this.medidor = new Medidor(entradaInicial);
     }
 
@@ -98,7 +100,7 @@ public class HidrometroSimulator {
         int tempoParaAvancar = config.getEscalaDeTempo();
         tempoTotalSimulado += tempoParaAvancar;
 
-        Entrada novaEntrada = new Entrada(tempoTotalSimulado, config, estrategias);
+        Entrada novaEntrada = new Entrada(tempoTotalSimulado, config, estrategias, this.controleVazao);
         medidor.atualizarMedicao(novaEntrada, tempoParaAvancar);
 
         notificarObservadores();

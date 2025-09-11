@@ -1,71 +1,86 @@
-package main.java.br.com.simulador.hidrometro;
+    package main.java.br.com.simulador.hidrometro;
 
-import main.java.br.com.simulador.config.Bitola;
-import main.java.br.com.simulador.config.SimulatorConfig;
-import main.java.br.com.simulador.strategy.PerfilDeConsumoStrategy;
+    import main.java.br.com.simulador.config.Bitola;
+    import main.java.br.com.simulador.config.SimulatorConfig;
+    import main.java.br.com.simulador.strategy.PerfilDeConsumoStrategy;
 
-import java.util.List;
-import java.util.Random;
-
-/**
- * Representa as condições de entrada da água no hidrômetro em um dado momento.
- * Utiliza o padrão Strategy para determinar a velocidade do fluxo.
- */
-public class Entrada {
-    private final Bitola bitola;
-    private final float pressao;
-    private final float velocidade;
-    private final Random random = new Random();
-
-    public Entrada(int tempoAtualSegundos, SimulatorConfig config, List<PerfilDeConsumoStrategy> estrategias) {
-        this.bitola = config.getBitola();
-
-        // Gera pressão dentro de uma faixa normal
-        float minPressao = config.getPressaoMinima();
-        float maxPressao = config.getPressaoMaxima();
-        this.pressao = minPressao + random.nextFloat() * (maxPressao - minPressao);
-
-        // Determina a velocidade da água usando a estratégia de consumo apropriada
-        this.velocidade = getVelocidade(tempoAtualSegundos, estrategias);
-    }
+    import java.util.List;
+    import java.util.Random;
 
     /**
-     * Encontra a estratégia de consumo ativa para a hora atual e calcula a velocidade do fluxo.
-     *
-     * @param tempoAtualSegundos O tempo total da simulação em segundos.
-     * @param estrategias        A lista de estratégias de consumo disponíveis.
-     * @return A velocidade do fluxo de água em m/s.
+     * Representa os dados de entrada para um determinado instante na simulação.
+     * Calcula a velocidade e o fluxo da água, aplicando o controlo de vazão em tempo real
+     * e validando contra o fluxo máximo da bitola, mantendo a dependência do SimulatorConfig.
      */
-    private float getVelocidade(int tempoAtualSegundos, List<PerfilDeConsumoStrategy> estrategias) {
-        int horaDoDia = (tempoAtualSegundos / 3600) % 24;
+    public class Entrada {
 
-        for (PerfilDeConsumoStrategy estrategia : estrategias) {
-            if (estrategia.isAtivo(horaDoDia)) {
-                return estrategia.getVelocidade(random);
-            }
+        private final Bitola bitola;
+        private final float pressao;
+        private final float velocidade; // A velocidade final, consistente com o fluxo validado
+        private final float fluxo;      // O fluxo final validado (m³/s)
+        private final Random random = new Random();
+
+        public Entrada(int tempoAtualSegundos, SimulatorConfig config, List<PerfilDeConsumoStrategy> estrategias, ControleVazao controleVazao) {
+            // Mantém a obtenção da bitola a partir do config, como na sua arquitetura
+            this.bitola = config.getBitola();
+
+            // Gera pressão dentro da faixa definida no config
+            float minPressao = config.getPressaoMinima();
+            float maxPressao = config.getPressaoMaxima();
+            this.pressao = minPressao + random.nextFloat() * (maxPressao - minPressao);
+
+            // --- LÓGICA DO CONTROLO DE VAZÃO ---
+
+            // 1. Obter a velocidade base do perfil de consumo ativo
+            float velocidadeBase = getVelocidadeBase(tempoAtualSegundos, estrategias);
+
+            // 2. Aplicar o multiplicador de vazão definido pelo utilizador
+            double multiplicador = controleVazao.getMultiplicador();
+            float velocidadeDesejada = (float) (velocidadeBase * multiplicador);
+
+            // 3. Calcular o fluxo desejado com base na velocidade ajustada
+            float raio = this.bitola.getDiametro() / 2.0f;
+            float area = (float) (Math.PI * raio * raio);
+            float fluxoDesejado = area * velocidadeDesejada;
+
+            // 4. Obter o fluxo máximo (qmax) permitido pela bitola
+            float fluxoMaximo = this.bitola.getQmax();
+
+            // 5. VALIDAR: O fluxo final é o menor valor entre o desejado e o máximo permitido
+            this.fluxo = Math.min(fluxoDesejado, fluxoMaximo);
+
+            // 6. Recalcular a velocidade final para ser consistente com o fluxo validado
+            this.velocidade = (area > 0) ? this.fluxo / area : 0;
         }
-        // Retorna um valor padrão (próximo de zero) se nenhum perfil for encontrado
-        return 0.01f;
-    }
 
-    /**
-     * Calcula o fluxo de água em metros cúbicos por segundo (m³/s).
-     *
-     * @return O fluxo em m³/s.
-     */
-    public float calcularFluxo() {
-        float raio = bitola.getDiametro() / 2.0f;
-        float area = (float) (Math.PI * raio * raio);
-        // CORREÇÃO: A fórmula correta para o fluxo é area * velocidade.
-        return area * this.velocidade;
-    }
+        /**
+         * Encontra a estratégia de consumo ativa para a hora atual e retorna a velocidade base.
+         */
+        private float getVelocidadeBase(int tempoAtualSegundos, List<PerfilDeConsumoStrategy> estrategias) {
+            int horaDoDia = (tempoAtualSegundos / 3600) % 24;
+            for (PerfilDeConsumoStrategy estrategia : estrategias) {
+                if (estrategia.isAtivo(horaDoDia)) {
+                    return estrategia.getVelocidade(random);
+                }
+            }
+            return 0.0f; // Retorno padrão
+        }
 
-    public float getPressao() {
-        return pressao;
-    }
 
-    public Bitola getBitola() {
-        return bitola;
+        /**
+         * Retorna o fluxo de água já calculado e validado em metros cúbicos por segundo (m³/s).
+         * @return O fluxo validado em m³/s.
+         */
+        public float calcularFluxo() {
+            return this.fluxo;
+        }
+
+        public float getPressao() {
+            return pressao;
+        }
+
+        public Bitola getBitola() {
+            return bitola;
+        }
     }
-}
 
