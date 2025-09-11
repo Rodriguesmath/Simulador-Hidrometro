@@ -36,8 +36,8 @@ para cada período do dia. Os períodos não podem se sobrepor.
 --- Perfil Madrugada (Consumo Baixo) ---
 madrugada_inicio = 0
 madrugada_fim = 5
-madrugada_vel_min = 0.01
-madrugada_vel_max = 0.2
+madrugada_vel_min = 1.5
+madrugada_vel_max = 2.8
 
 --- Perfil Manhã (Pico de Consumo) ---
 manha_inicio = 6
@@ -48,11 +48,11 @@ manha_vel_max = 2.8
 --- Perfil Tarde (Consumo Moderado) ---
 tarde_inicio = 10
 tarde_fim = 17
-tarde_vel_min = 0.5
-tarde_vel_max = 1.5
+tarde_vel_min = 1.5
+tarde_vel_max = 2.8
 
 --- Perfil Noite (Segundo Pico) ---
 noite_inicio = 18
 noite_fim = 23
-noite_vel_min = 1.2
-noite_vel_max = 2.5
+noite_vel_min = 1.5
+noite_vel_max = 2.8

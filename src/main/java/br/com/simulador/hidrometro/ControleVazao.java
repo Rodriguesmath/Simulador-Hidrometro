@@ -2,25 +2,31 @@ package main.java.br.com.simulador.hidrometro;
 
 /**
  * Classe thread-safe para armazenar e controlar o multiplicador de vazão em tempo real.
- * Este objeto é compartilhado entre a interface (Display) e o motor da simulação (Entrada).
+ * Agora trabalha em percentual (0 a 100), mas internamente guarda normalizado (0.0 a 1.0).
  */
 public class ControleVazao {
-    // volatile garante que as mudanças feitas por uma thread sejam visíveis para outras.
-    private volatile double multiplicador = 1.0;
+    private volatile double multiplicador = 1.0; // 100% por padrão
 
     /**
-     * Define o novo multiplicador de vazão.
-     * @param multiplicador O valor do multiplicador (ex: 1.0 para normal, 2.0 para o dobro).
+     * Define o multiplicador em percentual (0 a 100).
      */
-    public synchronized void setMultiplicador(double multiplicador) {
-        this.multiplicador = multiplicador;
+    public synchronized void setMultiplicador(double percentual) {
+        if (percentual < 0) percentual = 0;
+        if (percentual > 100) percentual = 100;
+        this.multiplicador = percentual / 100.0;
     }
 
     /**
-     * Obtém o valor atual do multiplicador de vazão.
-     * @return O multiplicador atual.
+     * Retorna o multiplicador já normalizado (0.0 a 1.0).
      */
     public synchronized double getMultiplicador() {
         return multiplicador;
+    }
+
+    /**
+     * Retorna o percentual "cru" (0 a 100) — útil para exibir na interface.
+     */
+    public synchronized int getPercentual() {
+        return (int) Math.round(multiplicador * 100);
     }
 }

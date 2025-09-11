@@ -46,6 +46,7 @@ public class Controller {
 
         // Após o fim do ciclo, notifica todos os observadores sobre o término
         simulator.notificarFimSimulacao();
+
     }
 }
 

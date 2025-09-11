@@ -42,30 +42,59 @@ public class Display implements Observador {
      */
     private JPanel criarPainelControle() {
         JPanel painel = new JPanel(new BorderLayout(10, 0));
+
+        // 1. Fundo do Painel: Azul escuro para harmonizar com o design do hidrômetro.
+        painel.setBackground(new Color(30, 60, 100));
+
+        // 2. Borda: Remoção do TitledBorder e uso de uma borda com cantos arredondados.
         painel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(5, 5, 5, 5),
-                new TitledBorder("Controle de Vazão em Tempo Real")
+                BorderFactory.createEmptyBorder(10, 10, 10, 10), // Padding
+                BorderFactory.createLineBorder(new Color(70, 100, 150), 2, true) // Contorno azul arredondado
         ));
 
-        // 4. Criar o JSlider. Valores de 10 a 300 para representar 0.1x a 3.0x
-        JSlider sliderVazao = new JSlider(10, 300, 100);
-        JLabel labelValorVazao = new JLabel("1.00x", SwingConstants.CENTER);
+        // Adiciona o título como um JLabel separado, com cor e fonte personalizadas
+        JLabel tituloLabel = new JLabel("Controle de Vazão (0-100%)", SwingConstants.CENTER);
+        tituloLabel.setForeground(Color.WHITE);
+        tituloLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        painel.add(tituloLabel, BorderLayout.NORTH);
+
+        // Slider de 0 a 100 (percentual)
+        JSlider sliderVazao = new JSlider(0, 100, 100);
+
+        // 3. Slider Personalizado: Torna-o transparente para que o fundo do painel seja visível
+        // e usa cores para a trilha e o indicador.
+        sliderVazao.setOpaque(false);
+
+        // Configura as cores do slider (isso afeta todos os sliders, idealmente seria um UI personalizado)
+        UIManager.put("Slider.trackColor", new Color(70, 100, 150));
+        UIManager.put("Slider.thumbColor", new Color(180, 200, 220));
+
+        // Opcional: Adiciona um JComponent vazio para servir de "espaço" para a aparência do slider, se necessário.
+        painel.add(sliderVazao, BorderLayout.CENTER);
+
+        // Label do valor da vazão
+        JLabel labelValorVazao = new JLabel("100%", SwingConstants.CENTER);
         labelValorVazao.setFont(new Font("Arial", Font.BOLD, 16));
+        // 4. Cor do Texto: Cinza claro para bom contraste.
+        labelValorVazao.setForeground(new Color(230, 230, 230));
 
-        // 5. Adicionar o "ouvinte de eventos" para reagir às mudanças do slider
         sliderVazao.addChangeListener(e -> {
-            // Converte o valor do slider (10-300) para o multiplicador (0.1-3.0)
-            double multiplicador = sliderVazao.getValue() / 100.0;
+            int percentual = sliderVazao.getValue();
 
-            // Atualiza o objeto partilhado
-            controleVazao.setMultiplicador(multiplicador);
+            // Atualiza o objeto compartilhado
+            // Note: A variável 'controleVazao' deve ser acessível dentro desta classe.
+            controleVazao.setMultiplicador(percentual);
 
             // Atualiza o texto na interface
-            labelValorVazao.setText(String.format("%.2fx", multiplicador));
+            labelValorVazao.setText(percentual + "%");
         });
 
-        painel.add(sliderVazao, BorderLayout.CENTER);
-        painel.add(labelValorVazao, BorderLayout.EAST);
+        // Adiciona o valor em um painel auxiliar para um melhor controle de alinhamento
+        JPanel valorPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        valorPanel.setOpaque(false);
+        valorPanel.add(labelValorVazao);
+
+        painel.add(valorPanel, BorderLayout.EAST);
 
         return painel;
     }
