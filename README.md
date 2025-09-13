@@ -11,9 +11,6 @@ Este projeto é um simulador de hidrômetro desenvolvido em Java com a bibliotec
 * **Exportação de Imagens**: Salva automaticamente uma imagem (JPEG) do medidor a cada metro cúbico completado.
 
 ## 📸 Screenshot
-
-*(**DICA:** Tire um print da sua aplicação rodando e coloque aqui! Isso torna o repositório muito mais atraente. Você pode arrastar a imagem diretamente para a edição do README no GitHub.)*
-
 ![Screenshot do Simulador](caminho/para/sua/imagem.png)
 
 ## 🚀 Como Executar
@@ -28,10 +25,23 @@ Este projeto é um simulador de hidrômetro desenvolvido em Java com a bibliotec
 
 ## ⚙️ Configuração
 
-O comportamento da simulação pode ser ajustado através do arquivo `config/config.txt`.
+O comportamento da simulação pode ser ajustado através do arquivo `config/config.txt`. Abaixo estão os parâmetros disponíveis:
 
-* `matricula`: Sua matrícula, usada para nomear a pasta de imagens salvas.
-* `simularAr`: `true` ou `false` para ativar a simulação de ar com vazão zero.
-* `bitola`, `tempoExecucao`, etc.
+### Configurações Gerais da Simulação
+* `bitola`: Define o diâmetro do hidrômetro em polegadas. As opções válidas são `1/2`, `3/4`, `1`, `1 1/2`, `2`, `3`, `4`.
+* `tempoExecucao`: Determina a duração total da simulação em segundos. O valor `-1` pode ser usado para uma execução infinita.
+* `intervaloAtualizacao`: Controla a pausa, em milissegundos, no mundo real entre cada atualização visual.
+* `escalaDeTempo`: Define quantos segundos o tempo da simulação avança a cada atualização.
 
----
+### Parâmetros Físicos
+* `pressaoMinima`: A pressão mínima da água na rede, medida em bar.
+* `pressaoMaxima`: A pressão máxima da água na rede, medida em bar.
+
+### Perfis de Consumo
+O sistema utiliza perfis para simular o consumo em diferentes períodos do dia (Madrugada, Manhã, Tarde e Noite). Para cada perfil, é possível definir:
+* A hora de início e fim do período (ex: `madrugada_inicio`, `madrugada_fim`).
+* A faixa de velocidade do fluxo de água em m/s (ex: `madrugada_vel_min`, `madrugada_vel_max`).
+
+### Funcionalidades Adicionais
+* `simularAr`: Um valor booleano (`true` ou `false`) que ativa ou desativa a simulação da passagem de ar quando a vazão é 0%.
+* `matricula`: Define a Matrícula SUAP que será usada para nomear o diretório onde as medições são salvas.
