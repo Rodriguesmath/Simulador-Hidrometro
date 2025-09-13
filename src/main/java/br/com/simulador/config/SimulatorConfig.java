@@ -18,6 +18,7 @@ public class SimulatorConfig {
     private float pressaoMinima;
     private float pressaoMaxima;
     private boolean simularAr;
+    private String matricula;
     private final Map<String, String> perfilDeConsumoProps = new HashMap<>();
 
     public SimulatorConfig(String caminhoArquivo) {
@@ -66,6 +67,9 @@ public class SimulatorConfig {
                     case "simularAr": // <-- 2. NOVA VERIFICAÇÃO
                         this.simularAr = Boolean.parseBoolean(valor);
                         break;
+                    case "matricula": // <-- 2. NOVA VERIFICAÇÃO
+                        this.matricula = valor;
+                        break;
                     default:
                         System.out.println("Chave desconhecida ignorada: " + chave );
                 }
@@ -75,7 +79,10 @@ public class SimulatorConfig {
         }
     }
 
-    // <-- 3. NOVO GETTER -->
+    public String getMatricula() {
+        return matricula;
+    }
+
     public boolean isSimularAr() {
         return simularAr;
     }

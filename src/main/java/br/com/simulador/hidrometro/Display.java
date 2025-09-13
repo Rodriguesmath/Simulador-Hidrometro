@@ -1,7 +1,11 @@
 package main.java.br.com.simulador.hidrometro;
 
+import main.java.br.com.simulador.config.SimulatorConfig;
 import main.java.br.com.simulador.observer.Observador;
 
+import java.util.concurrent.ExecutorService; // <-- 1. NOVA IMPORTAÇÃO
+import java.util.concurrent.Executors;     // <-- 2. NOVA IMPORTAÇÃO
+import javax.imageio.ImageIO; // <-- 2. NOVA IMPORTAÇÃO
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
@@ -9,6 +13,8 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.File; // <-- 3. NOVA IMPORTAÇÃO
+import java.io.IOException; // <-- 4. NOVA IMPORTAÇÃO
 
 /**
  * Responsável por gerar a interface gráfica do hidrómetro e o controlo de vazão.
@@ -19,9 +25,16 @@ public class Display implements Observador {
     private final JFrame frame;
     private final JLabel labelImagem;
     private final ControleVazao controleVazao; // 1. Campo para guardar a referência
+    private final SimulatorConfig config; // <-- 5. NOVO ATRIBUTO
+    private int ultimoM3Salvo = 0; // <-- 6. NOVO ATRIBUTO para controlar quando salvar
 
-    public Display(ControleVazao controleVazao) { // 2. Aceitar o objeto no construtor
+    // <-- 3. NOVO ATRIBUTO: O GERENCIADOR DA NOSSA THREAD -->
+    // Cria um executor que usa uma única thread para executar as tarefas em sequência.
+    private final ExecutorService saveExecutor = Executors.newSingleThreadExecutor();
+
+    public Display(ControleVazao controleVazao, SimulatorConfig config) {
         this.controleVazao = controleVazao;
+        this.config = config;
 
         frame = new JFrame("Simulador de Hidrómetro");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -106,6 +119,16 @@ public class Display implements Observador {
         BufferedImage imagem = gerarImagemAnalogica(totalM3);
         labelImagem.setIcon(new ImageIcon(imagem));
 
+        int m3AtualInteiro = (int) totalM3;
+        if (m3AtualInteiro > this.ultimoM3Salvo) {
+            this.ultimoM3Salvo = m3AtualInteiro;
+
+            // <-- 4. MUDANÇA NA CHAMADA: SUBMETE A TAREFA PARA A OUTRA THREAD -->
+            // Em vez de chamar salvarImagem() diretamente, nós a submetemos como uma
+            // tarefa para o nosso ExecutorService. Ele executará o método em segundo plano.
+            saveExecutor.submit(() -> salvarImagem(imagem, m3AtualInteiro));
+        }
+
         if (!frame.isVisible()) {
             frame.pack();
             frame.setVisible(true);
@@ -115,6 +138,7 @@ public class Display implements Observador {
     @Override
     public void simulacaoFinalizada(Medidor medidor) {
         frame.setTitle("Simulador de Hidrómetro (FINALIZADO)");
+        saveExecutor.shutdown();
     }
 
     // O método gerarImagemAnalogica(...) e os seus métodos auxiliares permanecem os mesmos.
@@ -300,6 +324,47 @@ public class Display implements Observador {
 
         g.dispose();
         return imagem;
+    }
+
+    private void salvarImagem(BufferedImage imagem, int m3Atual) {
+        // Pega a matrícula do objeto de configuração
+        String matricula = config.getMatricula();
+        if (matricula == null || matricula.trim().isEmpty()) {
+            System.err.println("AVISO: Matrícula não configurada. Não foi possível salvar a imagem.");
+            return;
+        }
+
+        // Cria o nome do diretório
+        String nomeDiretorio = "Medicoes_" + matricula;
+        File diretorio = new File(nomeDiretorio);
+
+        // Cria o diretório se ele não existir
+        if (!diretorio.exists()) {
+            boolean sucesso = diretorio.mkdirs();
+            if(!sucesso) {
+                System.err.println("ERRO: Não foi possível criar o diretório: " + nomeDiretorio);
+                return;
+            }
+        }
+
+        // Calcula o número do arquivo de 00 a 99 e formata
+        int numeroArquivo = m3Atual % 100;
+        if (numeroArquivo == 0 && m3Atual > 0) { // Para o caso de 100, 200, etc.
+            // Se você quiser que 100m³ salve como "100.jpeg", a lógica aqui seria diferente.
+            // Mas seguindo o exemplo de sobreposição, 100 vira 00.
+        }
+        String nomeArquivo = String.format("%02d.jpeg", numeroArquivo);
+
+        File arquivoDeSaida = new File(diretorio, nomeArquivo);
+
+        try {
+            // Salva a imagem no formato JPEG
+            ImageIO.write(imagem, "jpeg", arquivoDeSaida);
+            System.out.println("Imagem salva: " + arquivoDeSaida.getPath());
+        } catch (IOException e) {
+            System.err.println("ERRO ao salvar a imagem " + nomeArquivo);
+            e.printStackTrace();
+        }
     }
 
     private void desenharMostrador(Graphics2D g, String label, int centerX, int centerY, int radius, float value) {

@@ -20,7 +20,7 @@ public class Controller {
 
         // 3. Partilhar a mesma instância com os outros componentes
         this.simulator = new HidrometroSimulator(config, this.controleVazao);
-        simulator.adicionarObservador(new Display(this.controleVazao));
+        simulator.adicionarObservador(new Display(this.controleVazao, this.config));
         simulator.adicionarObservador(new Saida(this.config));
     }
 
