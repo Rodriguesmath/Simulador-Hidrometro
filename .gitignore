@@ -1,0 +1,8 @@
+# Arquivos compilados
+/out/
+*.class
+
+# Arquivos de IDE (IntelliJ)
+.idea/
+*.iml
+
