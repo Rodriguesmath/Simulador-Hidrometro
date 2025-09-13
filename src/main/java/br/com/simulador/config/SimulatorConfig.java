@@ -14,9 +14,10 @@ public class SimulatorConfig {
     private Bitola bitola;
     private int tempoExecucao;
     private int intervaloAtualizacao;
-    private int escalaDeTempo; // Novo parâmetro
+    private int escalaDeTempo;
     private float pressaoMinima;
     private float pressaoMaxima;
+    private boolean simularAr;
     private final Map<String, String> perfilDeConsumoProps = new HashMap<>();
 
     public SimulatorConfig(String caminhoArquivo) {
@@ -62,6 +63,9 @@ public class SimulatorConfig {
                     case "pressaoMaxima":
                         this.pressaoMaxima = Float.parseFloat(valor);
                         break;
+                    case "simularAr": // <-- 2. NOVA VERIFICAÇÃO
+                        this.simularAr = Boolean.parseBoolean(valor);
+                        break;
                     default:
                         System.out.println("Chave desconhecida ignorada: " + chave );
                 }
@@ -69,6 +73,11 @@ public class SimulatorConfig {
         } catch (IOException e) {
             throw new RuntimeException("Erro ao carregar configuração: " + caminhoArquivo, e);
         }
+    }
+
+    // <-- 3. NOVO GETTER -->
+    public boolean isSimularAr() {
+        return simularAr;
     }
 
     // Getters para as configurações

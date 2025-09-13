@@ -8,7 +8,7 @@ import main.java.br.com.simulador.controller.Controller;
 public class Main {
     public static void main(String[] args) {
         // O caminho para o arquivo de configuração.
-        String configPath = "config/config.txt";
+        String configPath = "Simulador-Hidrometro/config/config.txt";
 
         try {
             Controller controller = new Controller(configPath);

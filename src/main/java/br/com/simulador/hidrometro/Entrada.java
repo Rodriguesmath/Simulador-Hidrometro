@@ -12,44 +12,43 @@
      * Calcula a velocidade e o fluxo da água, aplicando o controlo de vazão em tempo real
      * e validando contra o fluxo máximo da bitola, mantendo a dependência do SimulatorConfig.
      */
-    public class Entrada {
+    public class    Entrada {
 
         private final Bitola bitola;
         private final float pressao;
-        private final float velocidade; // A velocidade final, consistente com o fluxo validado
-        private final float fluxo;      // O fluxo final validado (m³/s)
+        private final float velocidade;
+        private final float fluxo;
         private final Random random = new Random();
 
+
         public Entrada(int tempoAtualSegundos, SimulatorConfig config, List<PerfilDeConsumoStrategy> estrategias, ControleVazao controleVazao) {
-            // Mantém a obtenção da bitola a partir do config, como na sua arquitetura
             this.bitola = config.getBitola();
 
-            // Gera pressão dentro da faixa definida no config
             float minPressao = config.getPressaoMinima();
             float maxPressao = config.getPressaoMaxima();
             this.pressao = minPressao + random.nextFloat() * (maxPressao - minPressao);
 
-            // --- LÓGICA DO CONTROLO DE VAZÃO ---
+            float velocidadeBase;
 
-            // 1. Obter a velocidade base do perfil de consumo ativo
-            float velocidadeBase = getVelocidadeBase(tempoAtualSegundos, estrategias);
+            if (controleVazao.getPercentual() == 0 && config.isSimularAr()) {
 
-            // 2. Aplicar o multiplicador de vazão definido pelo utilizador
-            double multiplicador = controleVazao.getMultiplicador();
-            float velocidadeDesejada = (float) (velocidadeBase * multiplicador);
+                float minVelocidadeAr = 0.001f;
+                float maxVelocidadeAr = 0.005f;
+                velocidadeBase = minVelocidadeAr + random.nextFloat() * (maxVelocidadeAr - minVelocidadeAr);
 
-            // 3. Calcular o fluxo desejado com base na velocidade ajustada
+            } else {
+
+                velocidadeBase = getVelocidadeBase(tempoAtualSegundos, estrategias);
+                double multiplicador = controleVazao.getMultiplicador();
+                velocidadeBase = (float) (velocidadeBase * multiplicador);
+            }
+
+
             float raio = this.bitola.getDiametro() / 2.0f;
             float area = (float) (Math.PI * raio * raio);
-            float fluxoDesejado = area * velocidadeDesejada;
-
-            // 4. Obter o fluxo máximo (qmax) permitido pela bitola
+            float fluxoDesejado = area * velocidadeBase;
             float fluxoMaximo = this.bitola.getQmax();
-
-            // 5. VALIDAR: O fluxo final é o menor valor entre o desejado e o máximo permitido
             this.fluxo = Math.min(fluxoDesejado, fluxoMaximo);
-
-            // 6. Recalcular a velocidade final para ser consistente com o fluxo validado
             this.velocidade = (area > 0) ? this.fluxo / area : 0;
         }
 
@@ -63,14 +62,9 @@
                     return estrategia.getVelocidade(random);
                 }
             }
-            return 0.0f; // Retorno padrão
+            return 0.0f;
         }
 
-
-        /**
-         * Retorna o fluxo de água já calculado e validado em metros cúbicos por segundo (m³/s).
-         * @return O fluxo validado em m³/s.
-         */
         public float calcularFluxo() {
             return this.fluxo;
         }
