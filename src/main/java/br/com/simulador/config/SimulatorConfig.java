@@ -1,13 +1,12 @@
 package main.java.br.com.simulador.config;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Carrega e armazena todas as configurações da simulação a partir de um arquivo.
+ * Armazena as configurações da simulação. Atua como um DTO/POJO (Plain Old Java Object).
+ * Esta versão mantém o construtor antigo por compatibilidade, delegando a lógica
+ * de carregamento para a classe ConfigLoader.
  */
 public class SimulatorConfig {
 
@@ -21,99 +20,63 @@ public class SimulatorConfig {
     private String matricula;
     private final Map<String, String> perfilDeConsumoProps = new HashMap<>();
 
+    /**
+     * Construtor padrão. Cria um objeto de configuração vazio.
+     * Usado pelo ConfigLoader.
+     */
+    public SimulatorConfig() {}
+
+    /**
+     * CONSTRUTOR DE COMPATIBILIDADE.
+     * Permite que o código antigo continue funcionando com `new SimulatorConfig(path)`.
+     * Internamente, ele agora delega o trabalho para o ConfigLoader.
+     */
     public SimulatorConfig(String caminhoArquivo) {
-        carregarArquivo(caminhoArquivo);
+        // 1. Cria o loader.
+        ConfigLoader loader = new ConfigLoader();
+        // 2. Pede para o loader criar um objeto de config temporário totalmente preenchido.
+        SimulatorConfig configCarregada = loader.carregarDeArquivo(caminhoArquivo);
+        // 3. Copia os dados do objeto carregado para este objeto (`this`).
+        this.copiarDados(configCarregada);
     }
 
-    private void carregarArquivo(String caminhoArquivo) {
-        try (BufferedReader br = new BufferedReader(new FileReader(caminhoArquivo))) {
-            String linha;
-            while ((linha = br.readLine()) != null) {
-                linha = linha.trim();
-                if (linha.isEmpty() || linha.startsWith("#"))
-                    continue;
-
-                String[] partes = linha.split("=");
-                if (partes.length != 2)
-                    continue;
-
-                String chave = partes[0].trim();
-                String valor = partes[1].trim();
-
-                if (chave.startsWith("madrugada_") || chave.startsWith("manha_") || chave.startsWith("tarde_") || chave.startsWith("noite_")) {
-                    perfilDeConsumoProps.put(chave, valor);
-                    continue;
-                }
-
-                switch (chave) {
-                    case "bitola":
-                        this.bitola = Bitola.fromString(valor);
-                        break;
-                    case "tempoExecucao":
-                        this.tempoExecucao = Integer.parseInt(valor);
-                        break;
-                    case "intervaloAtualizacao":
-                        this.intervaloAtualizacao = Integer.parseInt(valor);
-                        break;
-                    case "escalaDeTempo":
-                        this.escalaDeTempo = Integer.parseInt(valor);
-                        break;
-                    case "pressaoMinima":
-                        this.pressaoMinima = Float.parseFloat(valor);
-                        break;
-                    case "pressaoMaxima":
-                        this.pressaoMaxima = Float.parseFloat(valor);
-                        break;
-                    case "simularAr": // <-- 2. NOVA VERIFICAÇÃO
-                        this.simularAr = Boolean.parseBoolean(valor);
-                        break;
-                    case "matricula": // <-- 2. NOVA VERIFICAÇÃO
-                        this.matricula = valor;
-                        break;
-                    default:
-                        System.out.println("Chave desconhecida ignorada: " + chave );
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Erro ao carregar configuração: " + caminhoArquivo, e);
-        }
+    /**
+     * Método auxiliar para copiar os dados de outro objeto SimulatorConfig.
+     */
+    private void copiarDados(SimulatorConfig outraConfig) {
+        this.bitola = outraConfig.bitola;
+        this.tempoExecucao = outraConfig.tempoExecucao;
+        this.intervaloAtualizacao = outraConfig.intervaloAtualizacao;
+        this.escalaDeTempo = outraConfig.escalaDeTempo;
+        this.pressaoMinima = outraConfig.pressaoMinima;
+        this.pressaoMaxima = outraConfig.pressaoMaxima;
+        this.simularAr = outraConfig.simularAr;
+        this.matricula = outraConfig.matricula;
+        // Limpa o mapa atual e copia todos os dados do mapa do outro objeto.
+        this.perfilDeConsumoProps.clear();
+        this.perfilDeConsumoProps.putAll(outraConfig.perfilDeConsumoProps);
     }
 
-    public String getMatricula() {
-        return matricula;
-    }
+    // --- GETTERS ( ---
+    public String getMatricula() { return matricula; }
+    public boolean isSimularAr() { return simularAr; }
+    public Bitola getBitola() { return bitola; }
+    public int getTempoExecucao() { return tempoExecucao; }
+    public int getIntervaloAtualizacao() { return intervaloAtualizacao; }
+    public int getEscalaDeTempo() { return escalaDeTempo; }
+    public float getPressaoMinima() { return pressaoMinima; }
+    public float getPressaoMaxima() { return pressaoMaxima; }
+    public String getPerfilDeConsumoProperty(String key) { return perfilDeConsumoProps.get(key); }
 
-    public boolean isSimularAr() {
-        return simularAr;
-    }
-
-    // Getters para as configurações
-    public Bitola getBitola() {
-        return bitola;
-    }
-
-    public int getTempoExecucao() {
-        return tempoExecucao;
-    }
-
-    public int getIntervaloAtualizacao() {
-        return intervaloAtualizacao;
-    }
-
-    public int getEscalaDeTempo() {
-        return escalaDeTempo;
-    }
-
-    public float getPressaoMinima() {
-        return pressaoMinima;
-    }
-
-    public float getPressaoMaxima() {
-        return pressaoMaxima;
-    }
-
-    public String getPerfilDeConsumoProperty(String key) {
-        return perfilDeConsumoProps.get(key);
-    }
+    // --- SETTERS ---
+    // Usados pelo ConfigLoader para preencher um objeto vazio.
+    public void setBitola(Bitola bitola) { this.bitola = bitola; }
+    public void setTempoExecucao(int tempoExecucao) { this.tempoExecucao = tempoExecucao; }
+    public void setIntervaloAtualizacao(int intervaloAtualizacao) { this.intervaloAtualizacao = intervaloAtualizacao; }
+    public void setEscalaDeTempo(int escalaDeTempo) { this.escalaDeTempo = escalaDeTempo; }
+    public void setPressaoMinima(float pressaoMinima) { this.pressaoMinima = pressaoMinima; }
+    public void setPressaoMaxima(float pressaoMaxima) { this.pressaoMaxima = pressaoMaxima; }
+    public void setSimularAr(boolean simularAr) { this.simularAr = simularAr; }
+    public void setMatricula(String matricula) { this.matricula = matricula; }
+    public void addPerfilDeConsumoProperty(String key, String value) { this.perfilDeConsumoProps.put(key, value); }
 }
-
