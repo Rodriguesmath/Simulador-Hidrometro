@@ -16,7 +16,6 @@
 
         private final Bitola bitola;
         private final float pressao;
-        private final float velocidade;
         private final float fluxo;
         private final Random random = new Random();
 
@@ -49,7 +48,6 @@
             float fluxoDesejado = area * velocidadeBase;
             float fluxoMaximo = this.bitola.getQmax();
             this.fluxo = Math.min(fluxoDesejado, fluxoMaximo);
-            this.velocidade = (area > 0) ? this.fluxo / area : 0;
         }
 
         /**

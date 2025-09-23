@@ -8,13 +8,7 @@ import main.java.br.com.simulador.observer.Observador;
  * Responsável por gerar os logs de texto no console.
  * Implementa a interface Observador para ser notificado sobre atualizações.
  */
-public class Saida implements Observador {
-
-    private final SimulatorConfig config;
-
-    public Saida(SimulatorConfig config) {
-        this.config = config;
-    }
+public record Saida(SimulatorConfig config) implements Observador {
 
     @Override
     public void atualizar(Medidor medidor, int tempoSimulado) {
@@ -35,7 +29,7 @@ public class Saida implements Observador {
         System.out.println("=============================================");
     }
 
-    public void logInicioSimulacao(Medidor medidor) {
+    private void logInicioSimulacao(Medidor medidor) {
         System.out.println("=============================================");
         System.out.println("           INICIANDO SIMULAÇÃO");
         System.out.println("=============================================");
@@ -51,7 +45,7 @@ public class Saida implements Observador {
         System.out.println("=============================================");
     }
 
-    public void logMedicao(Medidor medidor, int tempoSimulado) {
+    private void logMedicao(Medidor medidor, int tempoSimulado) {
         System.out.println("-------------------------");
         int horas = tempoSimulado / 3600;
         System.out.printf("Tempo Simulado: %ds (%dh)%n", tempoSimulado, horas);

@@ -2,7 +2,7 @@ package main.java.br.com.simulador.controller;
 
 import main.java.br.com.simulador.config.SimulatorConfig;
 import main.java.br.com.simulador.hidrometro.ControleVazao;
-import main.java.br.com.simulador.hidrometro.Display;
+import main.java.br.com.simulador.hidrometro.display.Display;
 import main.java.br.com.simulador.hidrometro.HidrometroSimulator;
 import main.java.br.com.simulador.hidrometro.Saida;
 
@@ -12,15 +12,15 @@ import main.java.br.com.simulador.hidrometro.Saida;
 public class Controller {
     private final SimulatorConfig config;
     private final HidrometroSimulator simulator;
-    private final ControleVazao controleVazao; // 1. Adicionar o campo
 
     public Controller(String configPath) {
         this.config = new SimulatorConfig(configPath);
-        this.controleVazao = new ControleVazao(); // 2. Criar a instância única
+        // 1. Adicionar o campo
+        ControleVazao controleVazao = new ControleVazao(); // 2. Criar a instância única
 
         // 3. Partilhar a mesma instância com os outros componentes
-        this.simulator = new HidrometroSimulator(config, this.controleVazao);
-        simulator.adicionarObservador(new Display(this.controleVazao, this.config));
+        this.simulator = new HidrometroSimulator(config, controleVazao);
+        simulator.adicionarObservador(new Display(controleVazao, this.config));
         simulator.adicionarObservador(new Saida(this.config));
     }
 

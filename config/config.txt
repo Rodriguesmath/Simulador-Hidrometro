@@ -8,12 +8,12 @@
 
     Duração total da simulação em segundos.
     Ex: 86400 para simular 24 horas. Use -1 para execução infinita.
-    tempoExecucao = 86400
+    tempoExecucao = -1
 
     --- Controle de Velocidade da Simulação ---
     Intervalo de atualização visual (em milissegundos).
     Controla a pausa no mundo real entre cada frame. 1000 equivale a 1 segundo.
-    intervaloAtualizacao = 5000
+    intervaloAtualizacao = 1000
 
     Escala de tempo (em segundos simulados por atualização).
     Controla quantos segundos o tempo da simulação avança a cada atualização visual.
@@ -58,7 +58,7 @@
     noite_vel_max = 2.8
 
     --- Ativa (true) ou desativa (false) a simulação de passagem de ar quando a vazão for 0% ---
-    simularAr=false
+    simularAr=true
 
     --- Matrícula SUAP para nomear o diretório de medições (valor ficticio) ---
     matricula=199911250009

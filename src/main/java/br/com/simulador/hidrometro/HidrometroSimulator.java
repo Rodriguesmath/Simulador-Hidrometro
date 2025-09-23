@@ -69,7 +69,6 @@ public class HidrometroSimulator {
         estrategias.add(new PerfilNoite(noiteMinVel, noiteMaxVel, noiteInicio, noiteFim));
     }
 
-
     public void adicionarObservador(Observador obs) {
         this.observadores.add(obs);
     }
@@ -114,8 +113,5 @@ public class HidrometroSimulator {
         return tempoTotalSimulado >= tempoExecucaoConfigurado;
     }
 
-    public Medidor getMedidor() {
-        return medidor;
-    }
 }
 
