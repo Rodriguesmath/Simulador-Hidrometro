@@ -2,7 +2,7 @@
 
 Um simulador de hidrômetro analógico em Java, construído com foco em boas práticas de design e arquitetura de software, incluindo a aplicação de Padrões de Projeto como Observer, Strategy e Facade.
 
-![Status](https://img.shields.io/badge/status-concluído-green.svg)
+![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow.svg)
 ![Linguagem](https://img.shields.io/badge/linguagem-Java-blue.svg)
 ![UI](https://img.shields.io/badge/ui-Java%20Swing-orange.svg)
 ![Licença](https://img.shields.io/badge/licença-MIT-blue.svg)
