@@ -50,45 +50,76 @@ A arquitetura do sistema foi desenhada para ser modular e extensível. Cada paco
 
 1.  **Clone o repositório:**
     ```bash
-    git clone https://[URL-DO-SEU-REPOSITORIO]/simulador-hidrometro.git
+    git clone https://github.com/Rodriguesmath/Simulador-Hidrometro.git
     cd simulador-hidrometro
     ```
 
-2.  **Crie o arquivo de configuração:**
-    Na raiz do projeto, crie um arquivo chamado `config.properties` com o seguinte conteúdo:
-    ```properties
-    # --- Configurações do Hidrômetro ---
-    bitola=MEIA_POLEGADA
-    matricula=12345678
+2.  **Estrutura do TXT**
+    Na raiz do projeto, acesse config:
+    ```    ===============================================
+    Arquivo de Configuração do Simulador de Hidrômetro
+    ===============================================
+    --- Configurações Gerais da Simulação ---
+    Bitola do hidrômetro em polegadas.
+    Opções válidas: 1/2, 3/4, 1, 1 1/2, 2, 3, 4
+    bitola = 3/4
 
-    # --- Configurações da Simulação ---
-    tempoExecucao=300
-    intervaloAtualizacao=1000
-    escalaDeTempo=60
-    pressaoMinima=10.0
-    pressaoMaxima=15.0
-    simularAr=false
+    Duração total da simulação em segundos.
+    Ex: 86400 para simular 24 horas. Use -1 para execução infinita.
+    tempoExecucao = -1
 
-    # --- Configurações dos Perfis de Consumo (Velocidade em m/s) ---
-    perfilDeConsumo.madrugada.min=0.1
-    perfilDeConsumo.madrugada.max=0.3
-    perfilDeConsumo.madrugada.inicio=0
-    perfilDeConsumo.madrugada.fim=5
+    --- Controle de Velocidade da Simulação ---
+    Intervalo de atualização visual (em milissegundos).
+    Controla a pausa no mundo real entre cada frame. 1000 equivale a 1 segundo.
+    intervaloAtualizacao = 1000
 
-    perfilDeConsumo.manha.min=1.5
-    perfilDeConsumo.manha.max=2.5
-    perfilDeConsumo.manha.inicio=6
-    perfilDeConsumo.manha.fim=9
+    Escala de tempo (em segundos simulados por atualização).
+    Controla quantos segundos o tempo da simulação avança a cada atualização visual.
+    Ex: 1 para tempo real, 3600 para simular 1 hora a cada atualização.
+    escalaDeTempo = 3600
 
-    perfilDeConsumo.tarde.min=0.8
-    perfilDeConsumo.tarde.max=1.5
-    perfilDeConsumo.tarde.inicio=10
-    perfilDeConsumo.tarde.fim=18
+    --- Parâmetros Físicos da Água ---
+    Pressão mínima da água na rede (em bar)
+    pressaoMinima = 3.0
 
-    perfilDeConsumo.noite.min=1.2
-    perfilDeConsumo.noite.max=2.0
-    perfilDeConsumo.noite.inicio=19
-    perfilDeConsumo.noite.fim=23
+    Pressão máxima da água na rede (em bar)
+    pressaoMaxima = 6.0
+
+    =================================================================
+    Perfis de Consumo (Padrão Strategy)
+    =================================================================
+    Defina os horários (0-23) e as faixas de velocidade do fluxo (m/s)
+    para cada período do dia. Os períodos não podem se sobrepor.
+    =================================================================
+    --- Perfil Madrugada (Consumo Baixo) ---
+    madrugada_inicio = 0
+    madrugada_fim = 5
+    madrugada_vel_min = 1.5
+    madrugada_vel_max = 2.8
+
+    --- Perfil Manhã (Pico de Consumo) ---
+    manha_inicio = 6
+    manha_fim = 9
+    manha_vel_min = 1.5
+    manha_vel_max = 2.8
+
+    --- Perfil Tarde (Consumo Moderado) ---
+    tarde_inicio = 10
+    tarde_fim = 17
+    tarde_vel_min = 1.5
+    tarde_vel_max = 2.8
+
+    --- Perfil Noite (Segundo Pico) ---
+    noite_inicio = 18
+    noite_fim = 23
+    noite_vel_min = 1.5
+    noite_vel_max = 2.8
+
+    --- Ativa (true) ou desativa (false) a simulação de passagem de ar quando a vazão for 0% ---
+    simularAr=true
+
+    --- Matrícula SUAP para nomear o diretório de medições (valor ficticio) ---
+    matricula=199911250009
     ```
 
 3.  **Compile e Execute:**
