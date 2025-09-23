@@ -20,6 +20,8 @@ A modelagem UML deste projeto foi realizada através de um processo iterativo e 
 
 Toda a diagramação foi feita utilizando a sintaxe **Mermaid**, uma ferramenta leve de "diagrama como código" que permite gerar e versionar modelos UML diretamente em formato de texto, facilitando a integração com a documentação em Markdown.
 
+**DICA** baixe o arquivo UML-SHA.pdf localmente para uma melhor visualização.
+
 ## 📖 Sobre o Projeto
 
 Este projeto simula o funcionamento de um hidrômetro (medidor de água) em tempo real. Ele apresenta uma interface gráfica que exibe a leitura de um medidor analógico, atualizando o consumo com base em perfis de uso configuráveis.
