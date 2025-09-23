@@ -139,7 +139,7 @@ A arquitetura do sistema foi desenhada para ser modular e extensível. Cada paco
         ```
 
 ## 📁 Estrutura do Projeto
-
+```plaintext
 src/
 └── main/java/br/com/simulador/
 ├── Main.java                   # Ponto de entrada da aplicação
@@ -168,4 +168,4 @@ src/
 │   ├── PerfilManha.java        # ...
 │   ├── PerfilNoite.java
 │   └── PerfilTarde.java
-
+```
