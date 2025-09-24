@@ -32,6 +32,8 @@ A modelagem UML deste projeto foi realizada através de um processo iterativo e 
 
 Toda a diagramação foi feita utilizando a sintaxe **Mermaid**, uma ferramenta leve de "diagrama como código" que permite gerar e versionar modelos UML diretamente em formato de texto, facilitando a integração com a documentação em Markdown.
 
+[**Clique aqui para visualizar o Diagrama UML completo e interativo no Mermaid Chart.**](https://www.mermaidchart.com/d/147fc921-90b1-44e8-8d08-5ede496f9c3a)
+
 **DICA:** baixe o arquivo UML-SHA.pdf localmente para uma melhor visualização.
 
 ## 📖 Sobre o Projeto
