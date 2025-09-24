@@ -9,6 +9,18 @@ Um simulador de hidrômetro analógico em Java, construído com foco em boas pr�
 ![UML: Mermaid](https://img.shields.io/badge/UML-Mermaid-blue.svg)
 
 ---
+
+## 📝 Sumário
+
+* [Como a UML foi Construída](#-como-a-uml-foi-construída)
+* [Sobre o Projeto](#-sobre-o-projeto)
+* [Features](#-features)
+* [Arquitetura e Padrões de Projeto](#️-arquitetura-e-padrões-de-projeto)
+* [Tecnologias Utilizadas](#️-tecnologias-utilizadas)
+* [Como Executar](#-como-executar)
+* [Estrutura do Projeto](#-estrutura-do-projeto)
+* 
+---
 ## 📐 Como a UML foi Construída
 
 A modelagem UML deste projeto foi realizada através de um processo iterativo e colaborativo, utilizando o código-fonte como a "verdade absoluta" para a engenharia reversa da arquitetura. O processo seguiu os seguintes passos:
