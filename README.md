@@ -19,7 +19,6 @@ Um simulador de hidrômetro analógico em Java, construído com foco em boas pr�
 * [Tecnologias Utilizadas](#️-tecnologias-utilizadas)
 * [Como Executar](#-como-executar)
 * [Estrutura do Projeto](#-estrutura-do-projeto)
-* 
 ---
 ## 📐 Como a UML foi Construída
 
