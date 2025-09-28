@@ -29,7 +29,7 @@ A modelagem UML deste projeto foi realizada através de um processo iterativo e 
 3.  **Visualização de Padrões:** A análise focou em como a estrutura do código refletia os Padrões de Projeto implementados, como *Observer*, *Strategy* e *Facade*.
 4.  **Modelagem com Diagrama de Classes:** Um Diagrama de Classes completo foi criado para representar visualmente a estrutura estática do sistema, agrupando as classes em seus respectivos pacotes para maior clareza.
 
-Toda a diagramação foi feita utilizando a sintaxe **Mermaid**, uma ferramenta leve de "diagrama como código" que permite gerar e versionar modelos UML diretamente em formato de texto, facilitando a integração com a documentação em Markdown.
+Toda a diagramação foi feita utilizando a sintaxe **PlantUML**, uma ferramenta leve de "diagrama como código" que permite gerar e versionar modelos UML diretamente em formato de texto, facilitando a integração com a documentação em Markdown.
 
 **DICA:** baixe o arquivo UML-SHA.pdf localmente para uma melhor visualização.
 
@@ -47,6 +47,8 @@ O principal objetivo não é apenas a simulação em si, mas servir como um estu
 * **Controle em Tempo Real:** Permite que o usuário ajuste a vazão da água em tempo real através de um slider na interface.
 * **Persistência de Medições:** Salva automaticamente um snapshot (`.jpeg`) do hidrômetro toda vez que o valor de m³ inteiro é incrementado.
 * **Saída de Dados:** Exibe o log de medições no console a cada atualização.
+* **Multithread:** Permite que vários hidrômetros sejam simulados simultaneamente, cada um em sua própria thread.
+* **Registro de Medições:** Armazena as medições em arquivos de texto organizados por matrícula e data para cada thread.
 
 ## 🏗️ Arquitetura e Padrões de Projeto
 
@@ -142,7 +144,7 @@ A arquitetura do sistema foi desenhada para ser modular e extensível. Cada paco
     --- Ativa (true) ou desativa (false) a simulação de passagem de ar quando a vazão for 0% ---
     simularAr=true
 
-    --- Matrícula SUAP para nomear o diretório de medições (valor ficticio) ---
+    --- Matrícula SUAP para nomear o diretório(s) de medições (valor ficticio) ---
     matricula=199911250009
     ```
 
@@ -178,7 +180,8 @@ src/
 │       ├── Display.java            # Facade para a UI (Observador)
 │       ├── ControleVazaoPanel.java # Componente de UI do slider
 │       ├── HidrometroRenderer.java # Especialista em desenhar o hidrômetro
-│       └── ImagePersistenceService.java # Especialista em salvar imagens
+│       ├── ImagePersistenceService.java # Especialista em salvar imagens
+│       └── SimuladorThreads.java  # Gerencia múltiplas threads de simulação
 │   ├── ControleVazao.java      # Objeto de estado para a vazão
 │   ├── Entrada.java            # Calcula o fluxo de entrada no medidor
 │   ├── HidrometroSimulator.java# O motor da simulação (Subject)
