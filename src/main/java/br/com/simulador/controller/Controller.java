@@ -26,7 +26,7 @@ public class Controller {
      *
      * @param configPath O caminho do arquivo de configuração a ser carregado.
      */
-    public Controller(String configPath) {
+    public Controller(String configPath, String instanciaId) {
         // --- ETAPA 1: CARREGAR CONFIGURAÇÕES ---
         // Cria o objeto de configuração a partir do arquivo.
         // Nota: Em uma refatoração anterior, movemos esta lógica para uma classe 'ConfigLoader'.
@@ -44,7 +44,7 @@ public class Controller {
 
         // Cria a View da interface gráfica (Display) e a registra como um "ouvinte" (Observador) do simulador.
         // É crucial que a mesma instância de 'controleVazao' seja passada para o Display.
-        simulator.adicionarObservador(new Display(controleVazao, this.config));
+        simulator.adicionarObservador(new Display(controleVazao, this.config, instanciaId));
 
         // Cria a View de saída de texto (Saida) e também a registra como um observador.
         simulator.adicionarObservador(new Saida(this.config));

@@ -29,13 +29,16 @@ public class ImagePersistenceService {
      */
     private final ExecutorService saveExecutor = Executors.newSingleThreadExecutor();
 
+    private final String instanciaId;
+
     /**
      * Constrói o serviço de persistência de imagem.
      *
      * @param config A configuração da simulação, necessária para obter a matrícula do hidrômetro.
      */
-    public ImagePersistenceService(SimulatorConfig config) {
+    public ImagePersistenceService(SimulatorConfig config, String instanciaId) {
         this.config = config;
+        this.instanciaId = instanciaId != null ? instanciaId.trim() : "";
     }
 
     /**
@@ -63,18 +66,26 @@ public class ImagePersistenceService {
     private void performSave(BufferedImage imagem, int m3Atual) {
         // Pega a matrícula do hidrômetro a partir do objeto de configuração.
         String matricula = config.getMatricula();
+        // Define o nome do diretório onde as imagens serão salvas.
+        String nomeDiretorio;
         // Validação para garantir que a matrícula existe antes de prosseguir.
-        if (matricula == null || matricula.trim().isEmpty()) {
-            System.err.println("AVISO: Matrícula não configurada. Não foi possível salvar a imagem.");
-            return; // Interrompe a operação se a matrícula não estiver disponível.
+        if (matricula != null && !matricula.trim().isEmpty()) {
+            if (!instanciaId.isEmpty()) {
+                nomeDiretorio = "Medicoes_" + matricula + "_" + instanciaId;
+            } else {
+                nomeDiretorio = "Medicoes_" + matricula;
+            }
+        } else {
+            nomeDiretorio = instanciaId.isEmpty() ? "Medicoes" : "Medicoes_" + instanciaId;
+            System.err.println("AVISO: Matrícula não definida. Usando diretório padrão:" + nomeDiretorio);
         }
 
         // --- Lógica de Criação do Diretório ---
-        // Define o nome do diretório baseado na matrícula para organizar as medições.
-        String nomeDiretorio = "Medicoes_" + matricula;
+        // Cria um objeto File representando o diretório onde as imagens serão salvas.
         File diretorio = new File(nomeDiretorio);
         // Verifica se o diretório já existe; se não, tenta criá-lo.
-        if (!diretorio.exists()) {
+        // 'mkdirs()' retorna false se não conseguir criar o diretório.
+        if (!diretorio.exists() && !diretorio.mkdirs()) {
             // mkdirs() cria também os diretórios pai, se necessário, sendo mais robusto.
             if (!diretorio.mkdirs()) {
                 System.err.println("ERRO: Não foi possível criar o diretório: " + nomeDiretorio);

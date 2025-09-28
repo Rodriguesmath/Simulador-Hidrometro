@@ -47,10 +47,10 @@ public class Display implements Observador {
      * @param controleVazao Objeto de estado compartilhado para o controle de vazão.
      * @param config Objeto de configuração da simulação.
      */
-    public Display(ControleVazao controleVazao, SimulatorConfig config) {
+    public Display(ControleVazao controleVazao, SimulatorConfig config, String instanciaId) {
         // 1. Instancia os especialistas que farão o trabalho pesado.
         this.renderer = new HidrometroRenderer();
-        this.imageSaver = new ImagePersistenceService(config);
+        this.imageSaver = new ImagePersistenceService(config, instanciaId);
 
         // 2. Configura a janela principal (o "contêiner" da UI).
         this.frame = new JFrame("Simulador de Hidrómetro");
