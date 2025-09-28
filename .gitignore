@@ -1,8 +1,16 @@
-# Arquivos compilados
+# Arquivos compilados e de build
 /out/
+/bin/
 *.class
+*.jar
+*.war
+
+# Arquivos de log
+*.log
 
 # Arquivos de IDE (IntelliJ)
 .idea/
 *.iml
 
+# Arquivos do sistema operacional
+.DS_Store
