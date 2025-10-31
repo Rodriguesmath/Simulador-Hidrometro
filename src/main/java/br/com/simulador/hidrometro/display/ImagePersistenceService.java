@@ -31,6 +31,18 @@ public class ImagePersistenceService {
 
     private final String instanciaId;
 
+    private volatile boolean habilitado = true;
+
+    private volatile boolean logHabilitado = false;
+
+    public void setHabilitado(boolean habilitado) {
+        this.habilitado = habilitado;
+    }
+
+    public void setLogHabilitado(boolean habilitar) {
+        this.logHabilitado = habilitar;
+    }
+
     /**
      * Constrói o serviço de persistência de imagem.
      *
@@ -53,7 +65,11 @@ public class ImagePersistenceService {
     public void salvarImagem(BufferedImage imagem, int m3Atual) {
         // 'submit' adiciona a tarefa (definida por uma expressão lambda) à fila do executor.
         // A tarefa será executada pela thread de background assim que possível.
-        saveExecutor.submit(() -> performSave(imagem, m3Atual));
+        saveExecutor.submit(() -> {
+            if (this.habilitado) {
+                performSave(imagem, m3Atual);
+            }
+        });
     }
 
     /**
@@ -85,11 +101,12 @@ public class ImagePersistenceService {
         File diretorio = new File(nomeDiretorio);
         // Verifica se o diretório já existe; se não, tenta criá-lo.
         // 'mkdirs()' retorna false se não conseguir criar o diretório.
-        if (!diretorio.exists() && !diretorio.mkdirs()) {
-            // mkdirs() cria também os diretórios pai, se necessário, sendo mais robusto.
-            if (!diretorio.mkdirs()) {
-                System.err.println("ERRO: Não foi possível criar o diretório: " + nomeDiretorio);
-                return; // Interrompe se não conseguir criar o diretório.
+        if(!diretorio.exists()){
+            if(!diretorio.mkdirs()){
+                if(logHabilitado) {
+                    System.out.println("ERRO: Não foi possível criar o diretório: " + nomeDiretorio);
+                }
+                return; //Sai do método se não conseguir criar o diretório.
             }
         }
 
@@ -106,11 +123,15 @@ public class ImagePersistenceService {
         try {
             // Usa a classe ImageIO do Java para escrever a imagem no formato JPEG.
             ImageIO.write(imagem, "jpeg", arquivoDeSaida);
-            System.out.println("Imagem salva: " + arquivoDeSaida.getPath());
+            if(logHabilitado) {
+                System.out.println("Imagem salva: " + arquivoDeSaida.getAbsolutePath());
+            }
         } catch (IOException e) {
             // Captura possíveis erros de I/O (ex: disco cheio, falta de permissão) e informa no console.
-            System.err.println("ERRO ao salvar a imagem " + nomeArquivo);
-            e.printStackTrace();
+            if(logHabilitado) {
+                System.out.println("ERRO: Falha ao salvar a imagem em " + arquivoDeSaida.getAbsolutePath());
+                e.printStackTrace();
+            }
         }
     }
 
