@@ -39,6 +39,10 @@ public class Display implements Observador {
      */
     private int ultimoM3Salvo = 0;
 
+    public ImagePersistenceService getImageSaver() {
+        return imageSaver;
+    }
+
     /**
      * Constrói a janela da interface gráfica e inicializa seus componentes especialistas.
      * A assinatura deste construtor é mantida intencionalmente para garantir que
