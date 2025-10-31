@@ -21,6 +21,22 @@ public class Controller {
     /** Referência para o motor principal da simulação. */
     private final HidrometroSimulator simulator;
 
+    private final ControleVazao controleVazao;
+
+    private final Display display;
+
+    private final Saida saida;
+
+    public Saida getSaida() { return saida; }
+
+    public ControleVazao getControleVazao() {
+        return controleVazao;
+    }
+
+    public Display getDisplay() {
+        return display;
+    }
+
     /**
      * Constrói o Controller, inicializando e interconectando todo o sistema.
      *
@@ -36,18 +52,22 @@ public class Controller {
 
         // Cria a instância ÚNICA do objeto de estado que será compartilhado entre a UI e a simulação.
         // Ele funciona como a "ponte" entre o input do usuário (slider) e o cálculo do fluxo.
-        ControleVazao controleVazao = new ControleVazao();
+        this.controleVazao = new ControleVazao();
 
         // Cria o motor da simulação, injetando as dependências de que ele precisa.
         // Nota: Em uma refatoração posterior, injetamos uma 'EntradaFactory' em vez do 'ControleVazao'.
         this.simulator = new HidrometroSimulator(config, controleVazao);
 
+        this.display = new Display(controleVazao, this.config, instanciaId);
+
+        this.saida = new Saida(this.config);
+
         // Cria a View da interface gráfica (Display) e a registra como um "ouvinte" (Observador) do simulador.
         // É crucial que a mesma instância de 'controleVazao' seja passada para o Display.
-        simulator.adicionarObservador(new Display(controleVazao, this.config, instanciaId));
+        simulator.adicionarObservador(this.display);
 
         // Cria a View de saída de texto (Saida) e também a registra como um observador.
-        simulator.adicionarObservador(new Saida(this.config));
+        simulator.adicionarObservador(this.saida);
     }
 
     /**
