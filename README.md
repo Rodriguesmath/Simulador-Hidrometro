@@ -6,7 +6,7 @@ Um simulador de hidrômetro analógico em Java, construído com foco em boas pr�
 ![Linguagem](https://img.shields.io/badge/linguagem-Java-blue.svg)
 ![UI](https://img.shields.io/badge/ui-Java%20Swing-orange.svg)
 ![Licença](https://img.shields.io/badge/licença-MIT-blue.svg)
-![UML: Mermaid](https://img.shields.io/badge/UML-Mermaid-blue.svg)
+![UML: PlantUML](https://img.shields.io/badge/UML-PlantUML-blue.svg)
 
 ---
 
@@ -49,6 +49,7 @@ O principal objetivo não é apenas a simulação em si, mas servir como um estu
 * **Saída de Dados:** Exibe o log de medições no console a cada atualização.
 * **Multithread:** Permite que vários hidrômetros sejam simulados simultaneamente, cada um em sua própria thread.
 * **Registro de Medições:** Armazena as medições em arquivos de texto organizados por matrícula e data para cada thread.
+* **Gerenciamento via CLI:** Oferece uma interface de linha de comando para iniciar, parar e gerenciar múltiplas simulações de hidrômetros.
 
 ## 🏗️ Arquitetura e Padrões de Projeto
 
@@ -56,7 +57,7 @@ A arquitetura do sistema foi desenhada para ser modular e extensível. Cada paco
 
 * **Observer:** Usado para desacoplar o motor da simulação (`HidrometroSimulator`) das "visualizações" (`Display`, `Saida`). O simulador notifica os observadores sobre as atualizações sem precisar conhecê-los diretamente.
 * **Strategy:** Permite que o algoritmo de cálculo de consumo de água seja intercambiável. As classes `PerfilMadrugada`, `PerfilManha`, etc., são estratégias concretas que podem ser adicionadas ou removidas sem alterar o simulador.
-* **Facade:** A classe `Display` atua como uma fachada para o complexo subsistema de UI. Ela simplifica a interação, escondendo a lógica de renderização (`HidrometroRenderer`), persistência de imagens (`ImagePersistenceService`) e componentes de controle (`ControleVaoPanel`).
+* **Facade:** A classe `HidrometroFachada` é a principal implementação do padrão. Ela atua como um ponto de entrada único (Singleton) e simplificado para gerenciar múltiplas instâncias de simulação. Ela esconde a complexidade de criar, iniciar, parar e modificar (Controller, Thread, etc.) cada simulador, oferecendo uma API limpa para clientes como `ClienteCLI`.
 * **Factory / Princípio da Responsabilidade Única (SRP):** A classe `ConfigLoader` tem a única responsabilidade de ler e fazer o "parse" do arquivo de configuração, funcionando como uma fábrica que produz objetos `SimulatorConfig`.
 * **Composition Root:** A classe `Controller` centraliza a criação e a conexão de todos os objetos do sistema, garantindo que as dependências sejam injetadas corretamente e que os componentes permaneçam desacoplados entre si.
 
@@ -175,6 +176,8 @@ src/
 │   ├── Bitola.java             # Enum para as bitolas
 │   ├── ConfigLoader.java       # Factory para carregar configurações
 │   └── SimulatorConfig.java    # DTO com os dados de configuração
+├── fachada/
+│   └── HidrometroFachada.java  # Facade Singleton para geranciar simuladores via CLI
 ├── hidrometro/
 │   └── display/
 │       ├── Display.java            # Facade para a UI (Observador)
