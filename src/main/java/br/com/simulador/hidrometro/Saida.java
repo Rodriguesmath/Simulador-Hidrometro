@@ -10,8 +10,18 @@ import main.java.br.com.simulador.observer.Observador;
  */
 public record Saida(SimulatorConfig config) implements Observador {
 
+    private static volatile boolean habilitado = false;
+
+    public void setHabilitado(boolean habilitar) {
+        habilitado = habilitar;
+    }
+
     @Override
     public void atualizar(Medidor medidor, int tempoSimulado) {
+        if (!habilitado) {
+            return;
+        }
+
         if (tempoSimulado == 0) {
             logInicioSimulacao(medidor);
         } else {
@@ -21,6 +31,10 @@ public record Saida(SimulatorConfig config) implements Observador {
 
     @Override
     public void simulacaoFinalizada(Medidor estadoFinal) {
+        if (!habilitado) {
+            return;
+        }
+
         System.out.println("=============================================");
         System.out.println("           SIMULAÇÃO FINALIZADA");
         System.out.println("=============================================");
