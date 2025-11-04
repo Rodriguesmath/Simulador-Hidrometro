@@ -68,7 +68,9 @@ public class ClienteCLI {
     }
 
     private static void exibirMenu() {
-        System.out.println("--- Cliente CLI do SHA (Simulador de Hidrômetro Analógico ---");
+        System.out.println("========================================================================================");
+        System.out.println("----------------- Cliente CLI do SHA (Simulador de Hidrômetro Analógico ---------------");
+        System.out.println("========================================================================================");
         System.out.println("Use a Fachada para controlar as simulações:");
         System.out.println("  config [caminho]   - Define o arquivo de config. (Ex: config config/config.txt)");
         System.out.println("  criar [id]         - Cria e inicia uma simulação. (Ex: criar hidro_01)");
@@ -79,6 +81,6 @@ public class ClienteCLI {
         System.out.println("  logimg [id] [t/f]  - Habilita/desabilita log de imagem. (Ex: logimg hidro_01 true)");
         System.out.println("  menu               - Exibe este menu.");
         System.out.println("  sair               - Fecha esta interface.");
-        System.out.println("------------------------------------------------");
+        System.out.println("========================================================================================");
     }
 }
